@@ -17,6 +17,7 @@ app.use(express.urlencoded({ extended: true })); //
 // khai bao route
 app.use("/v1", webRoutes);
 app.use("/v2", webRoutes);
+app.use("/", webRoutes);
 
 //test connection
 

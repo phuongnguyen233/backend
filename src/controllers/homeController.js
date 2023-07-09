@@ -1,7 +1,13 @@
 const connection = require("../config/database");
-
-const getHomepage = (req, res) => {
-  return res.render("home.ejs");
+const {
+  getAllUsers,
+  getUserById,
+  updateUserById,
+  deleteUserById,
+} = require("../services/CRUDService");
+const getHomepage = async (req, res) => {
+  let results = await getAllUsers();
+  return res.render("home.ejs", { listUsers: results });
 };
 const getAbc = (req, res) => {
   res.render("sample.ejs");
@@ -9,26 +15,24 @@ const getAbc = (req, res) => {
 const getCreatePage = (req, res) => {
   res.render("create.ejs");
 };
+const getUpdatePage = async (req, res) => {
+  const userId = req.params.id;
+  let user = await getUserById(userId);
+
+  res.render("edit.ejs", { userEdit: user });
+};
+const postDeleteUser = async (req, res) => {
+  const userId = req.params.id;
+  let user = await getUserById(userId);
+  res.render("delete.ejs", { userDelete: user });
+};
 
 const postCreateUser = async (req, res) => {
   let email = req.body.email;
   let name = req.body.myname;
   let city = req.body.city;
-  // console.log("email = ", email, "name =", name, "city =", city);
-  // let { email, name, city } = req.body;
 
-  // connection.query(
-  //   ` INSERT INTO
-  //    Users (email, name, city)
-  //   VALUES (?, ?, ?)`,
-  //   [email, name, city],
-  //   function (err, results) {
-  //     // console.log(results);
-  //     res.send("Created user succeed!");
-  //   }
-  // );
-  console.log(connection);
-  const [results, fields] = await (
+  let [results, fields] = await (
     await connection
   ).query(`INSERT INTO Users (email, name, city) VALUES (?, ?, ?)`, [
     email,
@@ -36,7 +40,21 @@ const postCreateUser = async (req, res) => {
     city,
   ]);
 
-  res.send("Created user succeed!");
+  res.redirect("/");
+};
+const postUpdateUser = async (req, res) => {
+  let email = req.body.email;
+  let name = req.body.myname;
+  let city = req.body.city;
+  let userId = req.body.userId;
+  await updateUserById(email, name, city, userId);
+  // res.send("Updated user succeed!");
+  res.redirect("/");
+};
+const postHandleRemoveUser = async (req, res) => {
+  const id = req.body.userId;
+  await deleteUserById(id);
+  res.redirect("/");
 };
 
 module.exports = {
@@ -44,4 +62,10 @@ module.exports = {
   getAbc,
   postCreateUser,
   getCreatePage,
+  getUpdatePage,
+  postUpdateUser,
+  updateUserById,
+  postDeleteUser,
+  postHandleRemoveUser,
+  deleteUserById,
 };
