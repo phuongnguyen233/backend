@@ -32,13 +32,10 @@ const postCreateUser = async (req, res) => {
   let name = req.body.myname;
   let city = req.body.city;
 
-  let [results, fields] = await (
-    await connection
-  ).query(`INSERT INTO Users (email, name, city) VALUES (?, ?, ?)`, [
-    email,
-    name,
-    city,
-  ]);
+  let [results, fields] = await connection.query(
+    `INSERT INTO Users (email, name, city) VALUES (?, ?, ?)`,
+    [email, name, city]
+  );
 
   res.redirect("/");
 };
